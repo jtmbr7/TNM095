@@ -7,8 +7,6 @@ canvas.height = window.innerHeight - 50;
 
 const ctx = canvas.getContext('2d');
 
-
-
 let running = true;
 function animate(currentTime) {
 
