@@ -65,7 +65,7 @@ class Position {
 
 
 class Fish {
-    velocity = 0;
+    velocity = 3;
     joints = [];
     points = [];
     eyes = [];
@@ -124,59 +124,6 @@ class Fish {
         this.points.push(new Points(-.7, .5, this.size, this.joints[4], 0));
     }
 
-    tick() {
-
-
-        if(this.targetAngle < 0)
-            this.targetAngle = Math.PI * 2 - this.targetAngle;
-        this.time_shift.time += 1; //Increase time with 1 fps
-        if (this.time_shift.time > this.time_shift.threshold) //If the time is more than 120 frames per second
-        {
-            this.targetAngle = this.angle + Math.PI * 0.5 * Math.random(); //Give the object a new angle/direction 
-            this.time_shift.time = 0; //Reset time
-        }
-
-        if(this.position.x < this.size) {
-            this.position.x = this.size
-            this.targetAngle = Math.PI + (Math.PI/2) * Math.sign(this.angle - Math.PI);
-        }
-        
-        else if(this.position.x > canvas.width - this.size) {
-            this.position.x = canvas.width - this.size;
-            this.targetAngle = Math.PI + (Math.PI/2) * Math.sign(this.angle - Math.PI);
-        }
-
-        if(this.position.y < this.size) {
-            this.position.y = this.size
-            this.targetAngle = 3 * Math.PI/2 + (Math.PI/2) * Math.sign(this.angle - 3 * Math.PI/2);
-        }
-        
-        else if(this.position.y > canvas.height - this.size) {
-            this.position.y = canvas.height - this.size;
-            this.targetAngle = Math.PI/2 + (Math.PI/2) * Math.sign(this.angle - Math.PI/2);
-        }
-        
-        if(this.targetAngle != undefined) {
-            this.angle += Math.sign(this.targetAngle - this.angle) * .05
-
-            if(Math.abs(this.targetAngle - this.angle) < .1) {
-                this.targetAngle = undefined;
-            }
-        }
-
-        if(this.angle > Math.PI * 2)
-            this.angle -= 2 * Math.PI;
-        else if(this.angle < 0)
-            this.angle += 2 * Math.PI;
-
-        text({x: 400, y: 100}, 20, this.angle, "rgb(0, 0, 0, 1)")
-        this.position.x += this.velocity * Math.cos(this.angle);
-        this.position.y += this.velocity * Math.sin(this.angle);
-        this.joints.forEach(joint => joint.tick());
-        this.points.forEach(point => point.tick());
-        this.eyes.forEach(eye => eye.tick());
-    }
-
     draw() {
 
         this.joints.forEach(joint => joint.draw());
@@ -228,18 +175,85 @@ class Fish {
         this.velocity += speed;
     }
 
+    setTargetAngle(angle) {
+
+        if(Math.abs(this.angle - angle) > Math.PI) {
+            
+            this.targetAngle = {angle: angle, direction: Math.sign(this.angle - angle)};
+        }
+        
+        else this.targetAngle = {angle: angle, direction: -Math.sign(this.angle - angle)};
+
+    }
+
+    wall_collision(){
+
+        if(this.position.x < this.size) {
+            this.position.x = this.size
+
+            this.setTargetAngle(0);
+
+        }
+        
+        else if(this.position.x > canvas.width - this.size) {
+            this.position.x = canvas.width - this.size;
+            this.setTargetAngle(Math.PI);
+        }
+
+        else if(this.position.y < this.size) {
+            this.position.y = this.size
+            this.setTargetAngle(Math.PI/2);
+        }
+        
+        else if(this.position.y > canvas.height - this.size) {
+            this.position.y = canvas.height - this.size;
+            this.setTargetAngle(3*Math.PI/2);
+        }
+    }
+
+    tick() {
+
+
+        if(this.targetAngle < 0)
+            this.targetAngle = Math.PI * 2 - this.targetAngle;
+        this.time_shift.time += 1; //Increase time with 1 fps
+
+        if (this.time_shift.time > this.time_shift.threshold) //If the time is more than 120 frames per second
+        {
+            this.setTargetAngle(this.angle + - Math.PI/2 + Math.PI * Math.random());
+            this.time_shift.time = 0; //Reset time
+        }
+
+        this.wall_collision()
+
+        if(this.targetAngle != undefined) {
+
+            this.angle += .05 * this.targetAngle.direction;
+            
+            if(Math.abs(this.targetAngle.angle - this.angle) < .1) {
+                this.targetAngle = undefined;
+            }
+        }
+
+        if(this.angle > Math.PI * 2)
+            this.angle -= 2 * Math.PI;
+        else if(this.angle < 0)
+            this.angle += 2 * Math.PI;
+
+        this.position.x += this.velocity * Math.cos(this.angle);
+        this.position.y += this.velocity * Math.sin(this.angle);
+        this.joints.forEach(joint => joint.tick());
+        this.points.forEach(point => point.tick());
+        this.eyes.forEach(eye => eye.tick());
+    }
+
     collision(fish) {
 
         let distance = this.position.distance(fish.position);
 
         if(distance < (this.size + fish.size))
         {
-
-            let angle = Math.acos((this.position.x - fish.position.x)/distance);
-            if(this.position.x < fish.position.x)
-                angle *= -1;
-            
-
+            let angle = this.position.angle(fish.position, distance);
             fish.position.x = this.position.x - (this.size + fish.size) * Math.cos(angle);
             fish.position.y = this.position.y - (this.size + fish.size) * Math.sin(angle);
         }
@@ -311,7 +325,6 @@ class Joints {
 
     draw() {
 
-        text({x: 100, y: 100 + 100 * fishes[0].joints.indexOf(this)}, 20, this.angle, "rgb(0, 0, 0, 1)");
         circle(this.position, 3, "rgb(0, 0, 200, 1)");
         line(this.position, this.host.position, "rgb(0, 200, 0, 1)");
     }
@@ -332,6 +345,5 @@ class Points {
 
     draw() {
         circle(this.position, 2, "rgb(100, 100, 100, 1)");
-        text(this.position, 10, fishes[0].points.indexOf(this), "rgb(0, 0, 0, 1)")
     }
 }
