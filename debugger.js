@@ -4,6 +4,9 @@ let main = undefined;
 let memory = [];
 let selectedFish = undefined;
 let row = 0;
+let input = false;
+
+let cin = "";
 function myDebugger() {
 
     fishes.forEach(fish =>{
@@ -14,7 +17,7 @@ function myDebugger() {
     });
 
     if(main){
-        circle(main.position, 40, "rgb(0, 0, 200, .4)");
+        circle(main.position, main.size, "rgb(0, 0, 200, .4)");
     }
     if(key.ArrowDown == "keyup" && row < Object.keys(selectedFish).length - 1) {
         row += 1;
@@ -24,19 +27,31 @@ function myDebugger() {
         row -= 1;
     }
 
-    if(key.ArrowRight == "keyup" && (selectedFish[Object.keys(selectedFish)[row]].length > 0 || Object.keys(selectedFish[Object.keys(selectedFish)[row]]).length > 0) ) {
+    if(key.ArrowRight == "keyup" && selectedFish[Object.keys(selectedFish)[row]] && (selectedFish[Object.keys(selectedFish)[row]].length > 0 || Object.keys(selectedFish[Object.keys(selectedFish)[row]]).length > 0) ) {
         memory.push(selectedFish);
         selectedFish = selectedFish[Object.keys(selectedFish)[row]];
         row = 0;
     }
 
     if(key.ArrowLeft == "keyup" && memory.length > 0) {
-        selectedFish = memory[0];
-        memory.splice(0, 1);
+        selectedFish = memory[memory.length - 1];
+        memory.splice(memory.length - 1, 1);
         row = 0;
     }
 
+    text({x: 100, y: 700}, 20, memory.length, "black")
     if(selectedFish) {
+        
+        if(key.u == "keyup" && input == false)
+            input = true;
+
+
+        if(input) {
+            input = parseInt(prompt());
+            if(input)
+                selectedFish[Object.keys(selectedFish)[row]] = input;
+            input = false;
+        }
         let i = 0;
         for(let prop in selectedFish) {
             let c = "rgb(0, 0, 0, 1)";
