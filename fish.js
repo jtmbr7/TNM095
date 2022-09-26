@@ -27,7 +27,6 @@ class Fish {
     tick() {
 
         this.state_behaviour();
-
         
         this.fish_collision();
         this.wall_collision();
@@ -77,6 +76,15 @@ class Fish {
             let distance = food.position.distance(this.position);
             if(distance < this.size + food.size + this.vision ) {
                 this.setState("eating", {food: food, locked: false, timer: {time: 60, threshold: 60}});
+                ++this.food_count; 
+            }
+        });
+
+        threats.forEach(threat => {
+
+            let distance = threat.position.distance(this.position);
+            if(distance < this.size + threat.size + this.vision ) {
+                this.setState("threat_collision", {threat: threat});
             }
         });
     }
@@ -85,6 +93,7 @@ class Fish {
 
         this.sway.t += .05;
         let food = this.state.data.food;
+        
         if(food.size == 0) {
             this.state = {value: "searching"};
             return;
@@ -106,6 +115,18 @@ class Fish {
             timer.time = 0;
         }
     }
+
+    threat_collision() {
+
+        this.sway.t += .05;
+        let threat = this.state.data.threat;
+
+        let distance = this.position.distance(threat.position);
+
+        if(distance < this.size + threat.size)
+            this.velocity.value =  distance * .02;
+    }
+
     /* --------------------------------------------------------------------- */
 
     calculate_targetAngle() {
@@ -190,4 +211,5 @@ class Fish {
             }
         }
     }
+
 }

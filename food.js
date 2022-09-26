@@ -1,4 +1,3 @@
-
 class Food {
 
     size = 7;
