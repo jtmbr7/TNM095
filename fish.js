@@ -29,7 +29,6 @@ class Fish {
 
         this.state_behaviour();
         this.angle.normalize(); // Makes sure fishes angle (direction it swims in) is between 0 and 2 Pi
-        this.calcualte_sway();
         this.fish_collision();
         this.wall_collision();
         this.calculate_targetAngle();
@@ -45,7 +44,7 @@ class Fish {
         draw_skin(this);
         this.eyes.forEach(eye => eye.draw());
         //this.skeleton.draw();
-        ring(this.position, this.size + this.vision, 1, "rgb(0, 0, 200, 1)");
+        ring(this.position, this.size + this.vision, 1, "rgb(0, 0, 200, .3)");
     }
 
     state_behaviour() {
@@ -54,6 +53,7 @@ class Fish {
     }
 
     searching() {
+        this.speed_up();
 
         if(this.targetAngle == undefined) {
             ++this.angle_shift.time;
@@ -64,10 +64,6 @@ class Fish {
             }
         }
 
-        if(this.velocity < this.max_speed) {
-            this.velocity += this.acceleration
-        }
-
         foods.forEach(food => {
 
             let distance = food.position.distance(this.position);
@@ -75,6 +71,15 @@ class Fish {
                 this.setState("eating", {food: food, locked: false, timer: {time: 60, threshold: 60}});
             }
         });
+    }
+
+    speed_up() {
+
+        if(this.velocity < this.max_speed) {
+            this.velocity += this.acceleration
+        }
+        else this.velocity = this.max_speed;
+        this.sway.t += this.sway.speed * this.velocity;
     }
 
     eating() {
@@ -179,9 +184,5 @@ class Fish {
                 this.position = position
             }
         }
-    }
-
-    calcualte_sway() { // Calculations for fishes sway animation
-        this.sway.t += this.sway.speed * this.velocity;
     }
 }

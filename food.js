@@ -21,6 +21,8 @@ class Food {
 
     eat(fish) {
         this.size -= 1;
+        for(let i = 0; i < 10; ++i)
+            particles.push(new Particle(this.position));
     }
 }
 
@@ -30,4 +32,34 @@ function clear_food() {
             foods.splice(i, 1)
             --i;
         }
+
+    for(let i = 0; i < particles.length; ++i) {
+        if(particles[i].size <= 0) {
+            particles.splice(i, 1)
+            --i;
+        }
+    }
+}
+
+
+class Particle {
+    constructor(position) {
+        this.position = new Position(position.x, position.y);
+        this.velocity = Math.random() * 1 + 1;
+        this.angle = Math.random() * 2 * Math.PI;
+        this.size = Math.random() * 4 + 4;
+        this.color = rgb(Math.random() * 40 + 150, Math.random() * 40 + 50, Math.random() * 40 + 100);
+        
+    }
+
+    tick() {
+
+        this.size -= .5;
+        this.position.x += this.velocity * Math.cos(this.angle);
+        this.position.y += this.velocity * Math.sin(this.angle);
+    }
+
+    draw() {
+        circle(this.position, this.size, this.color);
+    }
 }
