@@ -5,16 +5,15 @@ class Fish {
         {r: 250, g: 115, b: 40}
     ];
 
-    velocity = 0;
-    acceleration = .03;
     angle = new Angle(Math.random() * Math.PI * 2);
     sway = {t: 0, speed: .1, length: .4};
-    state = {value: "searching", data: {}};
-    max_speed = 2;
     angle_shift = {time: 0, threshold: 60 * 2};
     turn_speed = .05;
-    vision = 10 + 40 * Math.random();
+    state = {value: "searching", data: {}};
     
+    // Genes
+    vision = 10 + 40 * Math.random();
+    velocity = {value: 0, max: 2, acceleration: .02};
     
     constructor(position, size) {
 
@@ -28,13 +27,17 @@ class Fish {
     tick() {
 
         this.state_behaviour();
-        this.angle.normalize(); // Makes sure fishes angle (direction it swims in) is between 0 and 2 Pi
+
+        
         this.fish_collision();
         this.wall_collision();
         this.calculate_targetAngle();
 
-        this.position.move(this.velocity, this.angle.add(Math.sin(this.sway.t) * this.sway.length));
+        // Updates the position of the fish
+        this.position.move(this.velocity.value, this.angle.add(Math.sin(this.sway.t) * this.sway.length));
 
+        // Makes sure fishes angle (direction it swims in) is between 0 and 2 Pi
+        this.angle.normalize();
         this.skeleton.tick();
         this.eyes.forEach(eye => eye.tick());
 
@@ -47,9 +50,14 @@ class Fish {
         ring(this.position, this.size + this.vision, 1, "rgb(0, 0, 200, .3)");
     }
 
+    /* ------------------------ BEHAVIOURS ------------------------ */
     state_behaviour() {
         if(typeof this[this.state.value] == "function")
             this[this.state.value]();
+    }
+
+    setState(state, data) {
+        this.state = {value: state, data: data}
     }
 
     searching() {
@@ -67,19 +75,10 @@ class Fish {
         foods.forEach(food => {
 
             let distance = food.position.distance(this.position);
-            if(distance < this.size + this.vision + food.size) {
+            if(distance < this.size + food.size + this.vision ) {
                 this.setState("eating", {food: food, locked: false, timer: {time: 60, threshold: 60}});
             }
         });
-    }
-
-    speed_up() {
-
-        if(this.velocity < this.max_speed) {
-            this.velocity += this.acceleration
-        }
-        else this.velocity = this.max_speed;
-        this.sway.t += this.sway.speed * this.velocity;
     }
 
     eating() {
@@ -94,10 +93,10 @@ class Fish {
         this.setTargetAngle(this.position.angle(this.state.data.food.position));
 
         let distance = this.position.distance(food.position);
-        this.velocity = distance * .02;
+        this.velocity.value = distance * .02;
 
         if(distance < this.size + food.size)
-            this.velocity = 0;
+            this.velocity.value = 0;
         
         let timer = this.state.data.timer;
         ++timer.time;
@@ -107,10 +106,7 @@ class Fish {
             timer.time = 0;
         }
     }
-
-    setState(state, data) {
-        this.state = {value: state, data: data}
-    }
+    /* --------------------------------------------------------------------- */
 
     calculate_targetAngle() {
 
@@ -122,6 +118,15 @@ class Fish {
                 this.targetAngle = undefined;
             }
         }
+    }
+    
+    speed_up() {
+
+        if(this.velocity.value < this.velocity.max) {
+            this.velocity.value += this.velocity.acceleration
+        }
+        else this.velocity.value = this.velocity.max;
+        this.sway.t += this.sway.speed * this.velocity.value;
     }
 
     setTargetAngle(angle) { // For setting the angle the fish should turn to
