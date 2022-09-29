@@ -15,6 +15,7 @@ class Skeleton {
     }
 
     tick() {
+        this.size = this.fish.size;
         this.angle = this.fish.angle;
         this.position = this.fish.position;
         this.joints.forEach(joint => joint.tick());
@@ -42,6 +43,7 @@ class Joint {
 
         this.sway = sway;
         this.skeleton = skeleton;
+        this.ds = length;
         this.length = length * skeleton.size;
         this.angle = new Angle(host.angle.value + initialAngle + Math.PI);
         this.initialAngle = initialAngle;
@@ -51,6 +53,9 @@ class Joint {
     }
 
     tick() {
+        this.length = this.ds * this.skeleton.size;
+        if(this.skeleton.joints.indexOf(this) > 8)
+        this.length  *= (this.skeleton.fish.maxSpeed + 1) * .2;
 
         this.angle.set(this.position.angle(this.host.position) + Math.sin(this.skeleton.fish.sway.t) * this.skeleton.fish.sway.length * this.sway);
 
@@ -78,8 +83,8 @@ class Point {
         this.host = host;
         this.skeleton = skeleton;
 
-        let d = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
-        let a = Math.acos(dx/d);
+        this.d = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
+        let a = Math.acos(dx/this.d);
         if(dy < 0)
             a *= -1;
         if(!a)
@@ -87,21 +92,22 @@ class Point {
         
         a += host.angle.value
 
-        this.position = new Position(host.position.x + skeleton.size * d * Math.cos(a), host.position.y + skeleton.size * d * Math.sin(a), skeleton.size * dz);
-        this.length = this.position.distance(host.position);
+        this.position = new Position(host.position.x + skeleton.size * this.d * Math.cos(a), host.position.y + skeleton.size * this.d * Math.sin(a), skeleton.size * dz);
+        this.length = this.d * skeleton.size;
         this.angle = this.position.angle(host.position) - this.host.angle.value - Math.PI;
         if(!this.angle)
             this.angle = 0;
     }
 
     tick() {
-        
+        this.length = this.d * this.skeleton.size;
+
         this.position.x = this.host.position.x + this.length * Math.cos(this.angle + this.host.angle.value);
         this.position.y = this.host.position.y + this.length * Math.sin(this.angle + this.host.angle.value);
     }
 
     draw() {
         circle(this.position, 2, Point.color);
-        text(this.position, 10, this.skeleton.points.indexOf(this), {rgb: "black"})
+        //text(this.position, 10, this.skeleton.points.indexOf(this), {rgb: "black"})
     }
 }

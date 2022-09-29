@@ -20,9 +20,12 @@ class Food {
     }
 
     eat(fish) {
-        this.size -= 1;
-        for(let i = 0; i < 10; ++i)
-            particles.push(new Particle(this.position));
+        if(this.size > 0) {
+            this.size -= 1;
+            for(let i = 0; i < 10; ++i)
+                particles.push(new Particle(this.position));
+            ++fish.foodCount;
+        }
     }
 }
 

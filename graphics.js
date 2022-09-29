@@ -3,9 +3,18 @@ function loadImage(url) {
 	return new Promise(r => { let i = new Image(); i.onload = (() => r(i)); i.src = url; });
 }
   
-function image(x, y, s, ref) {
+function bar(position, width, height, color) {
+    ctx.beginPath();
+    ctx.arc(position.x, position.y + height/2, height/2, Math.PI/2, 3*Math.PI/2);
+    ctx.arc(position.x + width, position.y + height/2, height/2, 3*Math.PI/2, Math.PI/2);
+    ctx.fillStyle = color;
+    ctx.fill();
+
+}
+
+function image(position, s, ref) {
 	var img = document.getElementById(ref);
-	ctx.drawImage(img, x, y, img.width * s, img.height * s);
+	ctx.drawImage(img, position.x, position.y, img.width * s, img.height * s);
 }
   
 function pyt(x, y) {
@@ -24,9 +33,9 @@ function rgb(r, g, b, a = 1) {
 	return "rgb("+r+","+g+","+b+","+a+")";
 }
   
-function rectangle(x, y, w, h, c) {
+function rectangle(position, w, h, c) {
 	ctx.fillStyle = c;
-	ctx.fillRect(x, y, w, h);
+	ctx.fillRect(position.x, position.y, w, h);
 }
   
 function border(x, y, w, h, c, t = 1) {
@@ -41,10 +50,13 @@ function border(x, y, w, h, c, t = 1) {
 	ctx.stroke();
 }
   
-function text(position, size, sentence, color) {
+function text(position, size, sentence, color, center) {
 	ctx.font = size + "px Arial";
 	ctx.fillStyle = color;
-	ctx.fillText(sentence, position.x, position.y);  
+	let margin = 0;
+	if(center)
+		margin = ctx.measureText(sentence).width/2;
+	ctx.fillText(sentence, position.x - margin, position.y);
 } 
   
 function hexagon(x, y, s, c, a_start = 0) {
@@ -75,7 +87,25 @@ function circle(position, radius, color) {
 	ctx.fill();
 }
 
-  
+function dashed_ring(position, s, t, c, n = 10) {
+
+	ctx.beginPath();
+
+	let step = 2 * (Math.PI)/n;
+	let r1 = 0;
+	let r2 = step/2;
+	
+	for(let i = 0; i < n; ++i) {
+		ctx.moveTo(position.x + Math.cos(r1) * s, position.y + Math.sin(r1) * s)
+		ctx.arc(position.x, position.y, s, r1, r2);
+		r1 += step;
+		r2 += step;
+	}
+	ctx.lineWidth = t;
+	ctx.strokeStyle = c;
+	ctx.stroke();
+}
+
 function ring(position, s, t, c) {
 	ctx.beginPath();
 	ctx.arc(position.x, position.y, s + t/2, 0, 2 * Math.PI);
@@ -101,4 +131,34 @@ function line(position_start, position_end, color, t = 4) {
 	ctx.lineWidth = t;
 	ctx.strokeStyle = color;
 	ctx.stroke();
+}
+
+function drawStar(position, spikes, outerRadius, innerRadius) {
+    var rot = Math.PI / 2 * 3;
+    var x = position.x;
+    var y = position.y;
+    var step = Math.PI / spikes;
+
+    ctx.beginPath();
+    
+    ctx.moveTo(position.x, position.y - outerRadius)
+
+    for (i = 0; i < spikes; i++) {
+        x = position.x + Math.cos(rot) * outerRadius;
+        y = position.y + Math.sin(rot) * outerRadius;
+        ctx.lineTo(x, y)
+        rot += step
+
+        x = position.x + Math.cos(rot) * innerRadius;
+        y = position.y + Math.sin(rot) * innerRadius;
+        ctx.lineTo(x, y)
+        rot += step
+    }
+    ctx.lineTo(position.x, position.y - outerRadius)
+    ctx.closePath();
+    ctx.lineWidth=5;
+    ctx.strokeStyle='black';
+    ctx.stroke();
+    ctx.fillStyle='black';
+    ctx.fill();
 }
