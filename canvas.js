@@ -64,9 +64,6 @@ function animate(currentTime) {
 
 
 	update(dt / 1000);
-	text(canvas.width - 90, 30, 20, "rgb(0, 0, 0, 1)", "FPS: " + fps);
-	text(canvas.width - 190, 60, 20, "rgb(0, 0, 0, 1)", "Average FPS: " + fps_average);
-
 	// KeyEvents
 	resetKeys();
 	mouse.prevx = mouse.x;

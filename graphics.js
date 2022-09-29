@@ -133,7 +133,7 @@ function line(position_start, position_end, color, t = 4) {
 	ctx.stroke();
 }
 
-function drawStar(position, spikes, outerRadius, innerRadius) {
+function drawStar(position, spikes, outerRadius, innerRadius, color) {
     var rot = Math.PI / 2 * 3;
     var x = position.x;
     var y = position.y;
@@ -157,8 +157,8 @@ function drawStar(position, spikes, outerRadius, innerRadius) {
     ctx.lineTo(position.x, position.y - outerRadius)
     ctx.closePath();
     ctx.lineWidth=5;
-    ctx.strokeStyle='black';
+    ctx.strokeStyle=color
     ctx.stroke();
-    ctx.fillStyle='black';
+    ctx.fillStyle=color
     ctx.fill();
 }
