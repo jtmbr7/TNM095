@@ -10,13 +10,12 @@ class Fish {
     angle_shift = {time: 0, threshold: 60 * 2};
     turn_speed = .05;
     state = {value: "searching", data: {}};
-    count_food = 0; 
-    energy = 100;
-    
+    foodCount = 0;
     // Genes
     vision = 10 + 40 * Math.random();
     velocity = {value: 0, acceleration: .02,};
     maxSpeed = 2;
+    size = 30;
     
     constructor(position, properties) {
 
@@ -31,35 +30,13 @@ class Fish {
 
     tick() {
 
-        threats.forEach(threat => {
-
-            let distance = threat.position.distance(this.position);
-            if(distance < this.size + threat.size) {
-                this.slowed = {time: 0, threshold: 2*60}
-            }
-        });
-
-        if(this.slowed) {
-
-            if(this.velocity.value > .5)
-                this.velocity.value = .5
-            this.slowed.time++;
-            if(this.slowed.time > this.slowed.threshold)
-                this.slowed = undefined;
-        }
-
         this.state_behaviour();
 
-        this.energy -= Math.pow(this.velocity.value, 2) * .01;
-        this.energy -= this.vision * .0005;
-        if(this.energy < 0)
-            this.energy = 0;
-        //this.energy -= Math.pow(this.)
-        
+        this.slow();
+
         this.fish_collision();
         this.wall_collision();
         this.calculate_targetAngle();
-        this.mutation(); 
 
         // Updates the position of the fish
         this.position.move(this.velocity.value, this.angle.add(Math.sin(this.sway.t) * this.sway.length));
@@ -68,15 +45,29 @@ class Fish {
         this.angle.normalize();
         this.skeleton.tick();
         this.eyes.forEach(eye => eye.tick());
+
+        if(this.foodCount >= 5)
+            this.layEgg();
+    }
+
+
+    slow() {
+        if(this.slowed) {
+            if(this.velocity.value > .5)
+                this.velocity.value = .5;
+            this.slowed.time++;
+            if(this.slowed.time > this.slowed.threshold)
+                this.slowed = undefined;
+        }
     }
 
     draw() {
+
+        this.colors[1] = {r: this.r, g: this.g, b: this.b};
         draw_skin(this);
         this.eyes.forEach(eye => eye.draw());
         //this.skeleton.draw();
-        dashed_ring(this.position, this.size + this.vision, 1, "rgb(0, 0, 200, .1)",20);
-        bar({x: this.position.x + - 40, y: this.position.y - 80}, 80, 20, "rgb(0, 0, 0, 1)")
-        bar({x: this.position.x + - 38, y: this.position.y - 75}, this.energy * .76, 10, "rgb(0, 250, 0, 1)")
+        dashed_ring(this.position, this.size + this.vision, 1, "rgb(0, 0, 200, .3)");
     }
 
     /* ------------------------ BEHAVIOURS ------------------------ */
@@ -92,6 +83,14 @@ class Fish {
     searching() {
         this.speed_up();
 
+        if(this.targetAngle == undefined) {
+            ++this.angle_shift.time;
+
+            if(this.angle_shift.time > this.angle_shift.threshold) {
+                this.setTargetAngle(Math.random() * Math.PI * 2);
+                this.angle_shift.time = 0;
+            }
+        }
 
         fishes.forEach(fish => {
 
@@ -127,29 +126,21 @@ class Fish {
         this.setTargetAngle(this.position.angle(this.state.data.food.position));
 
         let distance = this.position.distance(food.position);
-        this.velocity.value = distance * .02;
 
         if(distance < this.size + food.size)
             this.velocity.value = 0;
+            else {this.speed_up()};
         
         let timer = this.state.data.timer;
-        ++timer.time;
-
-        if(timer.time > timer.threshold) {
-            food.eat(this);
-            timer.time = 0;
+        
+        if(distance <= this.size + food.size) {
+            ++timer.time;
+    
+            if(timer.time > timer.threshold) {
+                food.eat(this);
+                timer.time = 0;
+            }
         }
-    }
-
-    threat_collision() {
-
-        this.sway.t += .05;
-        let threat = this.state.data.threat;
-
-        let distance = this.position.distance(threat.position);
-
-        if(distance < this.size + threat.size)
-            this.maxSpeed = 2;
     }
 
     chasing() {
@@ -269,30 +260,30 @@ class Fish {
         }
     }
 
-    Egg() {
+    layEgg() {
+        this.foodCount -= 5;
+        eggs.push(new Egg(this));
+    }
+}
 
-        let a = Math.random() * Math.PI * 2;
+class Egg {
 
-        //let newFish = new Fish(new Position(this.position.x + this.size * Math.cos(a), this.position.y + this.size * Math.sin(a)), {size: this.size + Math.random() * 5})
+    colors = ["rgb(200, 60, 30)", "rgb(150, 10, 0)", "rgb(250, 110, 60)"]
+    size = 7;
+    constructor(fish) {
+        this.parent = fish;
+        let a = fish.angle.value - Math.PI;
+        this.position = new Position(fish.position.x + Math.cos(a) * fish.size * .4, fish.position.y + Math.sin(a) * fish.size * .4);
 
-        circle(this.position, this.size,"rgb(200, 100, 150)"); 
-        
     }
 
-    mutation(){
-        if(this.count_food >= 5){
-            console.log("BABY");
-            this.count_food -= 5;
+    tick() {
 
-            //let newFish = Egg(circle(this.position, this.size, "rgb(200, 100, 150)")); 
-
-            //newFish.vision = this.vision + Math.random() * 50;
-            //newFish.speed = this.speed + Math.random() * 0.5;
-
-            fishes.push(newFish);
-        }
     }
 
-
-
+    draw() {
+        circle(this.position, this.size, this.colors[1])
+        circle(this.position, this.size * .8, this.colors[0])
+        circle({x: this.position.x - this.size * .2, y: this.position.y  - this.size * .2}, this.size * .5, this.colors[2])
+    }
 }

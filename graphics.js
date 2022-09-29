@@ -51,13 +51,12 @@ function border(x, y, w, h, c, t = 1) {
 }
   
 function text(position, size, sentence, color, center) {
-
 	ctx.font = size + "px Arial";
 	ctx.fillStyle = color;
 	let margin = 0;
 	if(center)
 		margin = ctx.measureText(sentence).width/2;
-	ctx.fillText(sentence, position.x - margin, position.y);  
+	ctx.fillText(sentence, position.x - margin, position.y);
 } 
   
 function hexagon(x, y, s, c, a_start = 0) {
@@ -134,7 +133,6 @@ function line(position_start, position_end, color, t = 4) {
 	ctx.stroke();
 }
 
-
 function drawStar(position, spikes, outerRadius, innerRadius) {
     var rot = Math.PI / 2 * 3;
     var x = position.x;
@@ -164,6 +162,3 @@ function drawStar(position, spikes, outerRadius, innerRadius) {
     ctx.fillStyle='black';
     ctx.fill();
 }
-
-
-
