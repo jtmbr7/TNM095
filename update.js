@@ -13,7 +13,7 @@ function setup() {
     for(let i = 0; i < 10; ++i)
         foods.push(new Food(new Position(Math.random() * canvas.width, Math.random() * canvas.height)));
 
-    for(let i = 0; i < 10; ++i)
+    for(let i = 0; i < 3; ++i)
         threats.push(new Threat(new Position(Math.random() * canvas.width, Math.random() * canvas.height)));
 }
 

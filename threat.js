@@ -11,7 +11,7 @@ class Threat {
     }
 
     draw() {
-        //drawStar(100,100, 15, 3, 1) 
+        drawStar(this.position, 15, 3, 1) 
         circle(this.position, this.size + 3, Threat.color)
     }
 
