@@ -46,14 +46,21 @@ let fishSpawner;
 let particles = [];
 let foods = [];
 let fishes = [];
+let threats = []; 
+let threat = []; 
+
 function setup() {
     playButton = new PlayButton(new Position(canvas.width - 100, canvas.height - 100));
     fishSpawner = new FishSpawner(new Position(120, canvas.height - 70))
     for(let i = 0; i < 10; ++i)
         foods.push(new Food(new Position(Math.random() * canvas.width, Math.random() * canvas.height)))
+    
+        for(let i = 0; i < 5; ++i)
+        threats.push(new Threat(new Position(Math.random() * canvas.width, Math.random() * canvas.height)));
+
 }
 
-let time = 60;
+let time = 60*3;
 
 
 function update(dt) {
@@ -79,6 +86,8 @@ function update(dt) {
     playButton.tick();
     playButton.draw();
     myDebugger();
+    threats.forEach(threat => threat.tick());
+    threats.forEach(threat => threat.draw());
 
     if(playButton.value) {
         foods.forEach(food => food.tick());

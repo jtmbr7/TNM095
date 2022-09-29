@@ -51,6 +51,7 @@ function border(x, y, w, h, c, t = 1) {
 }
   
 function text(position, size, sentence, color, center) {
+
 	ctx.font = size + "px Arial";
 	ctx.fillStyle = color;
 	let margin = 0;

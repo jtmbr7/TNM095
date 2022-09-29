@@ -23,6 +23,8 @@ class Food {
         this.size -= 1;
         for(let i = 0; i < 10; ++i)
             particles.push(new Particle(this.position));
+
+        ++fish.count_food; 
     }
 }
 
