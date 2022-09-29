@@ -220,7 +220,7 @@ class Clock {
 
     value = 0;
     size = 46;
-    constructor(position, maxTime = 10) {
+    constructor(position, maxTime = 30) {
         this.position = position;
         this.maxTime = maxTime * 60
         this.angle = this.value * (Math.PI * 2/this.maxTime) - Math.PI/2;
