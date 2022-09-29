@@ -10,11 +10,12 @@ class Fish {
     angle_shift = {time: 0, threshold: 60 * 2};
     turn_speed = .05;
     state = {value: "searching", data: {}};
-    
+    foodCount = 0;
     // Genes
     vision = 10 + 40 * Math.random();
     velocity = {value: 0, acceleration: .02,};
     maxSpeed = 2;
+    size = 30;
     
     constructor(position, properties) {
 
@@ -43,9 +44,14 @@ class Fish {
         this.angle.normalize();
         this.skeleton.tick();
         this.eyes.forEach(eye => eye.tick());
+
+        if(this.foodCount >= 5)
+            this.layEgg();
     }
 
     draw() {
+
+        this.colors[1] = {r: this.r, g: this.g, b: this.b};
         draw_skin(this);
         this.eyes.forEach(eye => eye.draw());
         //this.skeleton.draw();
@@ -108,17 +114,20 @@ class Fish {
         this.setTargetAngle(this.position.angle(this.state.data.food.position));
 
         let distance = this.position.distance(food.position);
-        this.velocity.value = distance * .02;
 
         if(distance < this.size + food.size)
             this.velocity.value = 0;
+            else {this.speed_up()};
         
         let timer = this.state.data.timer;
-        ++timer.time;
-
-        if(timer.time > timer.threshold) {
-            food.eat(this);
-            timer.time = 0;
+        
+        if(distance <= this.size + food.size) {
+            ++timer.time;
+    
+            if(timer.time > timer.threshold) {
+                food.eat(this);
+                timer.time = 0;
+            }
         }
     }
 
@@ -237,5 +246,32 @@ class Fish {
                 this.position = position
             }
         }
+    }
+
+    layEgg() {
+        this.foodCount -= 5;
+        eggs.push(new Egg(this));
+    }
+}
+
+class Egg {
+
+    colors = ["rgb(200, 60, 30)", "rgb(150, 10, 0)", "rgb(250, 110, 60)"]
+    size = 7;
+    constructor(fish) {
+        this.parent = fish;
+        let a = fish.angle.value - Math.PI;
+        this.position = new Position(fish.position.x + Math.cos(a) * fish.size * .4, fish.position.y + Math.sin(a) * fish.size * .4);
+
+    }
+
+    tick() {
+
+    }
+
+    draw() {
+        circle(this.position, this.size, this.colors[1])
+        circle(this.position, this.size * .8, this.colors[0])
+        circle({x: this.position.x - this.size * .2, y: this.position.y  - this.size * .2}, this.size * .5, this.colors[2])
     }
 }

@@ -56,7 +56,7 @@ function text(position, size, sentence, color, center) {
 	let margin = 0;
 	if(center)
 		margin = ctx.measureText(sentence).width/2;
-	ctx.fillText(sentence, position.x - margin, position.y);  
+	ctx.fillText(sentence, position.x - margin, position.y);
 } 
   
 function hexagon(x, y, s, c, a_start = 0) {
