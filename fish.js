@@ -32,7 +32,8 @@ class Fish {
 
         this.state_behaviour();
 
-        
+        this.slow();
+
         this.fish_collision();
         this.wall_collision();
         this.calculate_targetAngle();
@@ -47,6 +48,17 @@ class Fish {
 
         if(this.foodCount >= 5)
             this.layEgg();
+    }
+
+
+    slow() {
+        if(this.slowed) {
+            if(this.velocity.value > .5)
+                this.velocity.value = .5;
+            this.slowed.time++;
+            if(this.slowed.time > this.slowed.threshold)
+                this.slowed = undefined;
+        }
     }
 
     draw() {
