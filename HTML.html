@@ -6,18 +6,26 @@
     <title>Canvas Resize</title>
     <style type="text/css">
         canvas {
-            border: 1px solid black;
+            display:block;
         }
 
         body {
             margin: 0;
         }
+
+        img {
+            display: none;
+        }
     </style>
 </head>
+<img src="maxSpeed.png" id="maxSpeed">
+<img src="vision.png" id="vision">
+<img src="size.png" id="size">
 <body>
     <canvas id="canvas"></canvas>
     <script src="debugger.js"></script>
     <script src="graphics.js"></script>
+    <script src="menu.js"></script>
     <script src="general_lib.js"></script>
     <script src="food.js"></script>
     <script src="skeleton.js"></script>
