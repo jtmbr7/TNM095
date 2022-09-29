@@ -10,7 +10,7 @@ let cin = "";
 function myDebugger() {
 
     fishes.forEach(fish =>{
-        if(mouse.Left == "mouseup" && fish.position.distance({x: mouse.x, y: mouse.y}) < fish.size) {
+        if(mouse.Left == "mouseup" && fish.position.distance(mouse.position) < fish.size) {
             selectedFish = fish;
             main = fish;
         }

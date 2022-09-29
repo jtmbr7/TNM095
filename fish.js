@@ -13,12 +13,15 @@ class Fish {
     
     // Genes
     vision = 10 + 40 * Math.random();
-    velocity = {value: 0, max: 2, acceleration: .02};
+    velocity = {value: 0, acceleration: .02,};
+    maxSpeed = 2;
     
-    constructor(position, size) {
+    constructor(position, properties) {
+
+        for(let prop in properties)
+            this[prop] = properties[prop];
 
         this.position = position;
-        this.size = size;
 
         this.skeleton = new Skeleton(this);
         this.eyes = [new Eye(this, 1, .4, -.3), new Eye(this, 2, .4, .3)]
@@ -27,6 +30,7 @@ class Fish {
     tick() {
 
         this.state_behaviour();
+
         
         this.fish_collision();
         this.wall_collision();
@@ -39,14 +43,13 @@ class Fish {
         this.angle.normalize();
         this.skeleton.tick();
         this.eyes.forEach(eye => eye.tick());
-
     }
 
     draw() {
         draw_skin(this);
         this.eyes.forEach(eye => eye.draw());
         //this.skeleton.draw();
-        ring(this.position, this.size + this.vision, 1, "rgb(0, 0, 200, .3)");
+        dashed_ring(this.position, this.size + this.vision, 1, "rgb(0, 0, 200, .3)");
     }
 
     /* ------------------------ BEHAVIOURS ------------------------ */
@@ -71,20 +74,24 @@ class Fish {
             }
         }
 
+        fishes.forEach(fish => {
+
+            if(fish != this) {
+                let distance = fish.position.distance(this.position);
+                if(distance < this.size + fish.size + this.vision) {
+                    if(this.size/fish.size > 1.3)
+                        this.setState("chasing", {fish: fish});
+                    else if(this.size/fish.size < 0.77)
+                        this.setState("fleeing", {fish: fish, timer: {time: 0, threshold: 60 * 3}});
+                }
+            } 
+        });
+
         foods.forEach(food => {
 
             let distance = food.position.distance(this.position);
             if(distance < this.size + food.size + this.vision ) {
                 this.setState("eating", {food: food, locked: false, timer: {time: 60, threshold: 60}});
-                ++this.food_count; 
-            }
-        });
-
-        threats.forEach(threat => {
-
-            let distance = threat.position.distance(this.position);
-            if(distance < this.size + threat.size + this.vision ) {
-                this.setState("threat_collision", {threat: threat});
             }
         });
     }
@@ -93,7 +100,6 @@ class Fish {
 
         this.sway.t += .05;
         let food = this.state.data.food;
-        
         if(food.size == 0) {
             this.state = {value: "searching"};
             return;
@@ -116,16 +122,37 @@ class Fish {
         }
     }
 
-    threat_collision() {
+    chasing() {
+        let fish = this.state.data.fish;
+        
+        let distance = this.position.distance(fish.position)
 
-        this.sway.t += .05;
-        let threat = this.state.data.threat;
+        if(distance <= this.size + fish.size) {
+            fishes.splice(fishes.indexOf(fish), 1);
+            this.setState("searching")
+        } else {
+            this.setTargetAngle(this.position.angle(fish.position, distance));
+            this.speed_up();
+        }
 
-        let distance = this.position.distance(threat.position);
-
-        if(distance < this.size + threat.size)
-            this.velocity.value =  distance * .02;
     }
+
+    fleeing() {
+        let fish = this.state.data.fish;
+        let timer = this.state.data.timer;
+        let distance = fish.position.distance(this.position);
+        this.setTargetAngle(fish.position.angle(this.position, distance));
+        this.speed_up();
+        if(distance < this.vision + this.size) {
+            timer.time = 0;
+        }
+        else {
+            ++timer.time;
+            if(timer.time > timer.threshold)
+                this.setState("searching")
+        }
+    }
+
 
     /* --------------------------------------------------------------------- */
 
@@ -143,10 +170,10 @@ class Fish {
     
     speed_up() {
 
-        if(this.velocity.value < this.velocity.max) {
+        if(this.velocity.value < this.maxSpeed) {
             this.velocity.value += this.velocity.acceleration
         }
-        else this.velocity.value = this.velocity.max;
+        else this.velocity.value = this.maxSpeed;
         this.sway.t += this.sway.speed * this.velocity.value;
     }
 
@@ -211,5 +238,4 @@ class Fish {
             }
         }
     }
-
 }

@@ -15,19 +15,21 @@ class Eye {
         this.vertex = vertex;
         this.size = host.size * .1;
 
-        let d = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
-        let a = Math.acos(dx/d);
+        this.d = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
+        let a = Math.acos(dx/this.d);
         if(dy < 0)
             a *= -1;
 
-        this.position = new Position(host.position.x + host.size * d * Math.cos(a), host.position.y + host.size * d * Math.sin(a))
+        this.position = new Position(host.position.x + host.size * this.d * Math.cos(a), host.position.y + host.size * this.d * Math.sin(a))
 
-        this.distance = this.position.distance(host.position);
+        this.distance = this.d * this.host.size;
         this.angle = this.host.position.angle(this.position, this.distance);
     }
 
     tick() {
 
+        this.distance = this.d * this.host.size;
+        this.size = this.host.size * .1 + (this.host.vision + 1) * .005;
         let vertex = Fish.vertices[this.vertex];
         this.s = shading(this.host.skeleton.points[vertex[0]], this.host.skeleton.points[vertex[1]], this.host.skeleton.points[vertex[2]]);
         this.colors.forEach(color => color.rgb = rgb(color.r * this.s, color.g * this.s, color.b * this.s))

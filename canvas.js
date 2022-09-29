@@ -5,7 +5,7 @@
 var key = {}
 onkeydown = onkeyup = function (e) { key[e.key] = e.type; }
 
-let mouse = {};
+let mouse = {position: new Position(0, 0)};
 onmousedown = onmouseup = function (e) {
 	if (e.button == 0) mouse.Left = e.type;
 	else if (e.button == 2) mouse.Right = e.type;
@@ -13,8 +13,7 @@ onmousedown = onmouseup = function (e) {
 
 document.addEventListener("mousemove", function (e) {
 
-	mouse.x = e.clientX;
-	mouse.y = e.clientY;
+	mouse.position = new Position(e.clientX, e.clientY);
 });
 
 function resetKeys() {
@@ -24,7 +23,7 @@ function resetKeys() {
 	}
 
 	if (mouse.Right == "mouseup") mouse.Right = undefined;
-	if (mouse.Left == "mouseup") mouse.Left = undefined;
+	if (mouse.Left == "mouseup")  {mouse.Left = undefined; mouse.locked = false;}
 }
 
 // -------------------- CANVAS -------------------- //
@@ -32,8 +31,8 @@ let canvas = document.getElementById('canvas');
 let ctx = canvas.getContext('2d');
 let running = true;
 
-canvas.width = window.innerWidth - 50;
-canvas.height = window.innerHeight - 50;
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;;
 
 document.addEventListener('contextmenu', event => event.preventDefault());
 
@@ -61,7 +60,7 @@ function animate(currentTime) {
 		clearInterval(fps_call);
 	}
 
-	rectangle(0, 0, canvas.width, canvas.height, "rgb(140, 180, 200, 1)")
+	rectangle({x: 0, y: 0}, canvas.width, canvas.height, "rgb(140, 180, 200, 1)")
 
 
 	update(dt / 1000);
