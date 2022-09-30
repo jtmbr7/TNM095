@@ -8,7 +8,7 @@ class Fish {
     angle = new Angle(Math.random() * Math.PI * 2);
     sway = {t: 0, speed: .1, length: .4};
     angle_shift = {time: 0, threshold: 60 * 2};
-    turn_speed = .05;
+    turn_speed = .1;
     state = {value: "searching", data: {}};
     foodCount = 0;
     // Genes

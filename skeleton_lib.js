@@ -74,14 +74,14 @@ Skeleton.data = {
             max_bend: .2,
         },
         {
-            length: .2,
+            length: .15,
             angle: Math.PI,
             host: 0,
             max_bend: .4,
             sway: .3,
         },
         {
-            length: .2,
+            length: .15,
             angle: Math.PI,
             host: 1,
             max_bend: .4,

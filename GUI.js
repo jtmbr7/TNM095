@@ -143,8 +143,8 @@ class FishSpawner {
         }
         else this.color = "rgb(250, 250, 250, .4)"
 
+
         this.fish.velocity.value = 0;
-        this.fish.angle = new Angle(0)
         this.fish.state = {value: undefined}
         
         if(mouse.locked != this) {
@@ -161,6 +161,8 @@ class FishSpawner {
                 ++this.holdcount;
 
             if(this.holdcount == 10) {
+                if(mouse.position.distance(mouse.previousPosition) > 0)
+                this.fish.setTargetAngle(mouse.previousPosition.angle(mouse.position))
                 this.fish.tick();
                 this.fish.position.x = mouse.position.x
                 this.fish.position.y = mouse.position.y
@@ -220,7 +222,7 @@ class Clock {
 
     value = 0;
     size = 46;
-    constructor(position, maxTime = 10) {
+    constructor(position, maxTime = 30) {
         this.position = position;
         this.maxTime = maxTime * 60
         this.angle = this.value * (Math.PI * 2/this.maxTime) - Math.PI/2;
