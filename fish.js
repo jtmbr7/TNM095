@@ -141,7 +141,7 @@ class Fish {
 
     draw() {
 
-        this.brain.draw();
+        //this.brain.draw();
         this.colors[1] = {r: this.r, g: this.g, b: this.b};
         draw_skin(this);
 
