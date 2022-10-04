@@ -8,6 +8,7 @@ class Eye {
         {r: 20, g: 150, b: 150},
         {r: 50, g: 250, b: 250},
         {r: 250, g: 250, b: 250},
+        {},
     ];
 
     constructor(host, vertex, dx, dy) {
@@ -15,19 +16,22 @@ class Eye {
         this.vertex = vertex;
         this.size = host.size * .1;
 
-        let d = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
-        let a = Math.acos(dx/d);
+        this.d = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
+        let a = Math.acos(dx/this.d);
         if(dy < 0)
             a *= -1;
 
-        this.position = new Position(host.position.x + host.size * d * Math.cos(a), host.position.y + host.size * d * Math.sin(a))
+        this.position = new Position(host.position.x + host.size * this.d * Math.cos(a), host.position.y + host.size * this.d * Math.sin(a))
 
-        this.distance = this.position.distance(host.position);
+        this.distance = this.d * this.host.size;
         this.angle = this.host.position.angle(this.position, this.distance);
     }
 
     tick() {
 
+        this.colors[6] = {r: this.host.r, g: this.host.g, b: this.host.b}
+        this.distance = this.d * this.host.size;
+        this.size = this.host.size * .1 + (this.host.vision + 1) * .005;
         let vertex = Fish.vertices[this.vertex];
         this.s = shading(this.host.skeleton.points[vertex[0]], this.host.skeleton.points[vertex[1]], this.host.skeleton.points[vertex[2]]);
         this.colors.forEach(color => color.rgb = rgb(color.r * this.s, color.g * this.s, color.b * this.s))
@@ -45,6 +49,10 @@ class Eye {
         circle(this.position, this.size * .6, this.colors[3].rgb);
         circle(this.position.circulation(this.size * .1, 0), this.size * .4, this.colors[4].rgb);
         circle(this.position.circulation(this.size * .5, 5 * Math.PI/4), this.size * .4, this.colors[5].rgb);
+        
+        if(this.host.tired)
+        circle(this.position.circulation(this.size * .5, Math.PI + this.host.angle.value), this.size * 1.1, this.colors[6].rgb);
+
     }
 }
 
@@ -72,14 +80,14 @@ Skeleton.data = {
             max_bend: .2,
         },
         {
-            length: .2,
+            length: .15,
             angle: Math.PI,
             host: 0,
             max_bend: .4,
             sway: .3,
         },
         {
-            length: .2,
+            length: .15,
             angle: Math.PI,
             host: 1,
             max_bend: .4,

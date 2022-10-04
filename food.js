@@ -1,65 +1,53 @@
-
 class Food {
 
-    size = 7;
-    static color = "rgb(200, 100, 150)";
-    static shade_color = "rgb(150, 50, 100)";
-    static hl_color = "rgb(250, 150, 200)";
+    static objects = [];
+    static color = new Color(100, 140, 50, 1, true);
     constructor(position) {
         this.position = position;
-        this.hl_position = new Position(position.x - this.size * .1, position.y - this.size * .1);
-    }
-
-    tick() {
+        this.updateSize(5)
     }
 
     draw() {
-        circle(this.position, this.size + 3, Food.shade_color)
-        circle(this.position, this.size, Food.color)
-        circle(this.hl_position, this.size * .7, Food.hl_color)
+        circle(this.position, this.sh_size, Food.color.sh)
+        circle(this.position, this.size, Food.color.rgb)
+        circle(this.hl.position, this.hl.size, Food.color.hl)
+    }
+
+    updateSize(value) {
+        this.size = value;
+        this.sh_size = value + 3;
+        this.hl = {
+            size: value * .7,
+            position: new Position(this.position.x - value * .1, this.position.y - value * .1)
+        };
     }
 
     eat(fish) {
-        this.size -= 1;
-        for(let i = 0; i < 10; ++i)
-            particles.push(new Particle(this.position));
-    }
-}
-
-function clear_food() {
-    for(let i = 0; i < foods.length; ++i)
-        if(foods[i].size == 0) {
-            foods.splice(i, 1)
-            --i;
-        }
-
-    for(let i = 0; i < particles.length; ++i) {
-        if(particles[i].size <= 0) {
-            particles.splice(i, 1)
-            --i;
-        }
-    }
-}
-
-
-class Particle {
-    constructor(position) {
-        this.position = new Position(position.x, position.y);
-        this.velocity = Math.random() * 1 + 1;
-        this.angle = Math.random() * 2 * Math.PI;
-        this.size = Math.random() * 4 + 4;
-        this.color = rgb(Math.random() * 40 + 150, Math.random() * 40 + 50, Math.random() * 40 + 100);
         
+        if(this.size > 0) {
+            this.updateSize(this.size - 1);
+            for(let i = 0; i < 10; ++i)
+                Particle.objects.push(new Particle(this.position, 100, 140, 50));
+            ++fish.foodCount;
+            fish.energy += 10;
+        }
     }
 
-    tick() {
-
-        this.size -= .5;
-        this.position.x += this.velocity * Math.cos(this.angle);
-        this.position.y += this.velocity * Math.sin(this.angle);
+    static spawnRandom(n) {
+        
+        for(let i = 0; i < n; ++i)
+            Food.objects.push(new Food(new Position(Math.random() * canvas.width, Math.random() * canvas.height)));
     }
 
-    draw() {
-        circle(this.position, this.size, this.color);
+    static draw() {
+        Food.objects.forEach(obj => obj.draw());
+    }
+
+    static clear() {
+        for(let i = 0; i < Food.objects.length; ++i)
+            if(Food.objects[i].size == 0) {
+                Food.objects.splice(i, 1)
+                --i;
+            }
     }
 }

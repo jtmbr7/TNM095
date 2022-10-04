@@ -1,24 +1,43 @@
+let gui;
 
-let particles = [];
-let foods = [];
-let fishes = [];
 function setup() {
-    for(let i = 0; i < 10; ++i)
-        fishes.push(new Fish(new Position(Math.random() * canvas.width, Math.random() * canvas.height), 20));
-
-    for(let i = 0; i < 10; ++i)
-        foods.push(new Food(new Position(Math.random() * canvas.width, Math.random() * canvas.height)));
+    gui = new GUI();
+    Seaurchin.spawnRandom(40);
+    Food.spawnRandom(30);
 }
 
 function update() {
+   
+    gui.tick();
+    if(gui.playButton.value) {
+        Fish.tick();
+        Particle.tick();
 
-    myDebugger();
-    foods.forEach(food => food.tick());
-    fishes.forEach(fish => fish.tick());
-    particles.forEach(particle => particle.tick());
+        Food.clear();
+        Particle.clear();
+        Fish.clear();
+    }
 
-    clear_food();
-    particles.forEach(particle => particle.draw());
-    foods.forEach(food => food.draw());
-    fishes.forEach(fish => fish.draw());
+    Particle.draw();
+    Food.draw();
+    Egg.draw();
+    Seaurchin.draw();
+    Fish.draw();
+    gui.draw()
+}
+
+function newDay() {
+
+    Fish.objects.forEach(fish => {
+        ++fish.age;
+        if(fish.age > 1) {
+            fish.alive = false;
+        }
+        else {
+            fish.tired = true;
+            fish.energy = 0;
+        }
+    });
+    Egg.hatch();
+    Food.spawnRandom(10);
 }

@@ -9,8 +9,8 @@ let input = false;
 let cin = "";
 function myDebugger() {
 
-    fishes.forEach(fish =>{
-        if(mouse.Left == "mouseup" && fish.position.distance({x: mouse.x, y: mouse.y}) < fish.size) {
+    Fish.objects.forEach(fish =>{
+        if(mouse.Left == "mouseup" && fish.position.distance(mouse.position) < fish.size) {
             selectedFish = fish;
             main = fish;
         }
@@ -39,7 +39,6 @@ function myDebugger() {
         row = 0;
     }
 
-    text({x: 100, y: 700}, 20, memory.length, "black")
     if(selectedFish) {
         
         if(key.u == "keyup" && input == false)
