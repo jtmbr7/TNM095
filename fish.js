@@ -121,7 +121,7 @@ class Fish {
 
         this.energy -= Math.pow(this.velocity.value, 2) * .01;
         this.energy -= this.smart * .1;
-        //this.energy -= Math.pow(this.size, 3) /800000;
+        this.energy -= Math.pow(this.size, 3) /800000;
         this.energy -= this.turn_speed * .02;
         this.energy -= Math.pow(this.vision, 2) * 0.000001;
         
