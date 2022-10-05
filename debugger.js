@@ -53,12 +53,14 @@ function myDebugger() {
         }
         let i = 0;
         for(let prop in selectedFish) {
-            let c = "rgb(0, 0, 0, 1)";
-            if(i == row)
-                c = "rgb(0, 200, 0, 1)";
-            text({x: 50, y: 50 + 40 * i}, 25, prop + ": " + selectedFish[prop], c);
-    
-            ++i;
+            if(Fish.properties.find(x => x[0] == prop)) {
+                let c = "rgb(0, 0, 0, 1)";
+                if(i == row)
+                    c = "rgb(0, 200, 0, 1)";
+                text({x: 50, y: 50 + 40 * i}, 25, prop + ": " + selectedFish[prop], c);
+        
+                ++i;
+            }
         }
     }
 }

@@ -120,7 +120,7 @@ class Fish {
             this.energy = 100;
 
         this.energy -= Math.pow(this.velocity.value, 2) * .01;
-        this.energy -= this.smart * .1;
+        this.energy -= this.smart * .01;
         this.energy -= Math.pow(this.size, 3) /800000;
         this.energy -= this.turn_speed * .02;
         this.energy -= Math.pow(this.vision, 2) * 0.000001;
@@ -368,5 +368,5 @@ class Egg {
 }
 
 function signedRandom() {
-    return Math.floor((Math.random() - .5));
+    return Math.sign(Math.random() - .5);
 }
