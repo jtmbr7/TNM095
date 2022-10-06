@@ -2,7 +2,7 @@ let gui;
 
 function setup() {
     gui = new GUI();
-    Seaurchin.spawnRandom(40);
+    Seaurchin.spawnRandom(20);
     Food.spawnRandom(30);
 }
 
