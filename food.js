@@ -2,9 +2,9 @@
 class Food {
 
     size = 7;
-    static color = "rgb(200, 100, 150)";
-    static shade_color = "rgb(150, 50, 100)";
-    static hl_color = "rgb(250, 150, 200)";
+    static color = "rgb(151, 170, 30)";
+    static shade_color = "rgb(100, 120, 0)";
+    static hl_color = "rgb(200, 220, 80)";
     constructor(position) {
         this.position = position;
         this.hl_position = new Position(position.x - this.size * .1, position.y - this.size * .1);
@@ -25,6 +25,11 @@ class Food {
             for(let i = 0; i < 10; ++i)
                 particles.push(new Particle(this.position));
             ++fish.foodCount;
+            fish.energy += 20; 
+            if(fish.energy > 100){
+                fish.energy = 100; 
+
+            }
         }
     }
 }

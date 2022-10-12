@@ -1,5 +1,15 @@
 class Fish {
 
+    static rangevalues = {
+        size: [15, 40], 
+        maxSpeed: [ 1, 4],
+        vision: [20, 200],
+        smart: [0, 1],
+        r: [50, 200],
+        g:  [50, 200],
+        b: [50, 200]
+    }
+
     colors = [
         {r: 255, g: 227, b:157},
         {r: 250, g: 115, b: 40}
@@ -8,7 +18,7 @@ class Fish {
     angle = new Angle(Math.random() * Math.PI * 2);
     sway = {t: 0, speed: .1, length: .4};
     angle_shift = {time: 0, threshold: 60 * 2};
-    turn_speed = .1;
+    turn_speed = .05;
     state = {value: "searching", data: {}};
     foodCount = 0;
     // Genes
@@ -16,6 +26,8 @@ class Fish {
     velocity = {value: 0, acceleration: .02,};
     maxSpeed = 2;
     size = 30;
+    energy = 100; 
+    alive = true; 
     
     constructor(position, properties) {
 
@@ -46,8 +58,14 @@ class Fish {
         this.skeleton.tick();
         this.eyes.forEach(eye => eye.tick());
 
-        if(this.foodCount >= 5)
+        if(this.foodCount >= 5*this.size/27.5)
             this.layEgg();
+
+        this.energy -= Math.pow(this.velocity.value, 2) * .0001;
+        this.energy -= this.vision * .0001;
+        if(this.energy < 0)
+            this.alive = false; 
+        this.energy -= Math.pow(this.size,2)*.0001; 
     }
 
 
@@ -61,12 +79,16 @@ class Fish {
         }
     }
 
+
+
     draw() {
 
         this.colors[1] = {r: this.r, g: this.g, b: this.b};
         draw_skin(this);
         this.eyes.forEach(eye => eye.draw());
         //this.skeleton.draw();
+        bar({x: this.position.x + - 40, y: this.position.y - 80}, 80, 20, "rgb(250, 250, 250, 0.5)")
+        bar({x: this.position.x + - 38, y: this.position.y - 75}, this.energy * .76, 10, "rgb(0, 64, 255, 1)")
         dashed_ring(this.position, this.size + this.vision, 1, "rgb(0, 0, 200, .3)");
     }
 
@@ -149,7 +171,9 @@ class Fish {
         let distance = this.position.distance(fish.position)
 
         if(distance <= this.size + fish.size) {
-            fishes.splice(fishes.indexOf(fish), 1);
+            fish.alive = false;
+            this.foodCount += fish.size * 3 / 27.5;
+            this.energy += fish.size * 40 / 27.5;
             this.setState("searching")
         } else {
             this.setTargetAngle(this.position.angle(fish.position, distance));
@@ -172,6 +196,12 @@ class Fish {
             if(timer.time > timer.threshold)
                 this.setState("searching")
         }
+    }
+
+    energy() {
+
+        
+
     }
 
 
@@ -261,7 +291,7 @@ class Fish {
     }
 
     layEgg() {
-        this.foodCount -= 5;
+        this.foodCount -= 5*this.size/27.5;
         eggs.push(new Egg(this));
     }
 }
@@ -272,6 +302,7 @@ class Egg {
     size = 7;
     constructor(fish) {
         this.parent = fish;
+        this.size = fish.size * .2
         let a = fish.angle.value - Math.PI;
         this.position = new Position(fish.position.x + Math.cos(a) * fish.size * .4, fish.position.y + Math.sin(a) * fish.size * .4);
 

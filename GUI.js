@@ -21,13 +21,15 @@ class GUI {
         }
         
         this.playButton.tick();
-        this.fishSpawner.tick();
+        if(this.clock.value == 0)
+            this.fishSpawner.tick();
     
     }
 
     draw() {
         this.clock.draw();
         this.playButton.draw();
+        if(this.clock.value == 0)
         this.fishSpawner.draw();
         this.calendar.draw();
     }
@@ -146,7 +148,8 @@ class FishSpawner {
 
         this.fish.velocity.value = 0;
         this.fish.state = {value: undefined}
-        
+        this.fish.energy = 100;
+
         if(mouse.locked != this) {
             this.fish.tick();
             this.fish.position.x = this.position.x
@@ -206,7 +209,7 @@ class FishSpawner {
 
 class Calendar {
 
-    value = 0;
+    value = 1;
     constructor(position) {
         this.position = position;
     }

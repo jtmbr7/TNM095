@@ -11,7 +11,7 @@ function setup() {
     for(let i = 0; i < 10; ++i)
         seaurchins.push(new Seaurchin(new Position(Math.random() * canvas.width, Math.random() * canvas.height)));
 
-        for(let i = 0; i < 10; ++i)
+    for(let i = 0; i < 10; ++i)
         foods.push(new Food(new Position(Math.random() * canvas.width, Math.random() * canvas.height)))
 }
 
@@ -27,6 +27,12 @@ function update() {
         clear_food();
     }
 
+    for(let i = 0; i < fishes.length; ++i) {
+        if(!fishes[i].alive){
+            fishes.splice(i, 1)
+            --i;
+        }
+    }
     particles.forEach(particle => particle.draw());
     foods.forEach(food => food.draw());
     eggs.forEach(egg => egg.draw());
@@ -41,25 +47,39 @@ function newDay() {
 
     let oldGen = fishes.length;
     eggs.forEach(egg => {
-        fishes.push(new Fish(new Position(egg.position.x, egg.position.y), {
+
+        let genes = {
             vision: egg.parent.vision + signedRandom() * 30,
             maxSpeed: egg.parent.maxSpeed + signedRandom() * .5,
-            size: egg.parent.size + signedRandom() * 10,
+            size: egg.parent.size + signedRandom() * 5,
             smart: egg.parent.smart + signedRandom() * 10,
             r: egg.parent.r + signedRandom() * 5,
             g: egg.parent.g + signedRandom() * 5,
             b: egg.parent.b + signedRandom() * 5,
-        }));
+        };
+
+        for(let prop in Fish.rangevalues){
+            if(genes[prop] < Fish.rangevalues[prop][0])
+                genes[prop] = Fish.rangevalues[prop][0];
+            else if(genes[prop] > Fish.rangevalues[prop][1])
+                genes[prop] = Fish.rangevalues[prop][1];
+        }
+
+        fishes.push(new Fish(new Position(egg.position.x, egg.position.y), genes));
+        
     });
 
     eggs = [];
+    for(let i = 0; i < 10; ++i)
+    foods.push(new Food(new Position(Math.random() * canvas.width, Math.random() * canvas.height)))
+
 
     fishes.splice(0, oldGen);
-    
-    for(let i = 0; i < 10; ++i)
-        foods.push(new Food(new Position(Math.random() * canvas.width, Math.random() * canvas.height)))
 }
 
 function signedRandom() {
-    return (Math.random() - .5) * 2;
+
+    return (Math.random() -.5) *2; 
+
 }
+

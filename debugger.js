@@ -39,7 +39,6 @@ function myDebugger() {
         row = 0;
     }
 
-    text({x: 100, y: 700}, 20, memory.length, "black")
     if(selectedFish) {
         
         if(key.u == "keyup" && input == false)
