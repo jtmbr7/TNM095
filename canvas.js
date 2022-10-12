@@ -5,7 +5,7 @@
 var key = {}
 onkeydown = onkeyup = function (e) { key[e.key] = e.type; }
 
-let mouse = {position: new Position(0, 0)};
+let mouse = {position: new Position(0, 0), previousPosition: new Position(0, 0)};
 onmousedown = onmouseup = function (e) {
 	if (e.button == 0) mouse.Left = e.type;
 	else if (e.button == 2) mouse.Right = e.type;
@@ -69,8 +69,7 @@ function animate(currentTime) {
 
 	// KeyEvents
 	resetKeys();
-	mouse.prevx = mouse.x;
-	mouse.prevy = mouse.y;
+	mouse.previousPosition = new Position(mouse.position.x, mouse.position.y);
 
 	if (running)
 		requestAnimationFrame(animate);
