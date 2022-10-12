@@ -1,85 +1,65 @@
 let gui;
-let fishes = [];
-let foods = [];
-let particles = [];
-let eggs = [];
-let seaurchins = [];
 
 function setup() {
     gui = new GUI();
-
-    for(let i = 0; i < 10; ++i)
-        seaurchins.push(new Seaurchin(new Position(Math.random() * canvas.width, Math.random() * canvas.height)));
-
-    for(let i = 0; i < 10; ++i)
-        foods.push(new Food(new Position(Math.random() * canvas.width, Math.random() * canvas.height)))
+    Seaurchin.spawnRandom(20);
+    Food.spawnRandom(30);
 }
 
 function update() {
-
    
+    gui.tick();
     if(gui.playButton.value) {
-        foods.forEach(food => food.tick());
-        fishes.forEach(fish => fish.tick());
-        particles.forEach(particle => particle.tick());
-        eggs.forEach(egg => egg.tick());
-        seaurchins.forEach(seaurchin => seaurchin.tick());
-        clear_food();
+        Fish.tick();
+        Particle.tick();
+
+        Food.clear();
+        Particle.clear();
+        Fish.clear();
     }
 
-    for(let i = 0; i < fishes.length; ++i) {
-        if(!fishes[i].alive){
-            fishes.splice(i, 1)
-            --i;
-        }
-    }
-    particles.forEach(particle => particle.draw());
-    foods.forEach(food => food.draw());
-    eggs.forEach(egg => egg.draw());
-    seaurchins.forEach(seaurchin => seaurchin.draw());
-    fishes.forEach(fish => fish.draw());
-    
-    gui.tick();
+    Particle.draw();
+    Food.draw();
+    Egg.draw();
+    Seaurchin.draw();
+    Fish.draw();
     gui.draw()
 }
 
 function newDay() {
 
-    let oldGen = fishes.length;
-    eggs.forEach(egg => {
+    let data = {};
+    Fish.properties.forEach(prop => {
+        data[prop[0]] = {value: 0, range: [prop[1], prop[2]]};
+    })
 
-        let genes = {
-            vision: egg.parent.vision + signedRandom() * 30,
-            maxSpeed: egg.parent.maxSpeed + signedRandom() * .5,
-            size: egg.parent.size + signedRandom() * 5,
-            smart: egg.parent.smart + signedRandom() * 10,
-            r: egg.parent.r + signedRandom() * 5,
-            g: egg.parent.g + signedRandom() * 5,
-            b: egg.parent.b + signedRandom() * 5,
-        };
+    for(let prop in data) {
+        Fish.objects.forEach(fish =>{
+            data[prop].value += fish[prop];
+        });
 
-        for(let prop in Fish.rangevalues){
-            if(genes[prop] < Fish.rangevalues[prop][0])
-                genes[prop] = Fish.rangevalues[prop][0];
-            else if(genes[prop] > Fish.rangevalues[prop][1])
-                genes[prop] = Fish.rangevalues[prop][1];
+        data[prop].value /= Fish.objects.length;
+    }
+
+    for(let prop in data) {
+        let range = data[prop].range;
+        data[prop] = data[prop].value - range[0];
+        data[prop] /= range[1] - range[0];
+    }
+
+    console.log(data)
+
+    
+    Fish.objects.forEach(fish => {
+        ++fish.age;
+        if(fish.age > 1) {
+            fish.alive = false;
         }
-
-        fishes.push(new Fish(new Position(egg.position.x, egg.position.y), genes));
-        
+        else {
+            fish.tired = true;
+            fish.energy = 0;
+        }
     });
-
-    eggs = [];
-    for(let i = 0; i < 10; ++i)
-    foods.push(new Food(new Position(Math.random() * canvas.width, Math.random() * canvas.height)))
-
-
-    fishes.splice(0, oldGen);
+    Egg.hatch();
+    Food.spawnRandom(10);
 }
-
-function signedRandom() {
-
-    return (Math.random() -.5) *2; 
-
-}
-

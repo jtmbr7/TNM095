@@ -1,4 +1,17 @@
 
+class Color {
+    constructor(r, g, b, a = 1, extended) {
+        this.r = r;
+        this.g = g;
+        this.b = b;
+        this.a = a;
+        this.rgb = "rgb("+ r + "," + g + "," + b + "," + a + ")";
+        if(extended) {
+            this.sh = "rgb("+ (r - 50) + "," + (g - 50) + "," + (b - 50) + "," + a + ")";
+            this.hl = "rgb("+ (r + 50) + "," + (g + 50) + "," + (b + 50) + "," + a + ")";
+        }
+    }
+}
 
 const light = normalize([1, 1, -1]);
 
@@ -89,6 +102,27 @@ class Angle {
 
     add(value) {
         return new Angle(this.value + value);
+    }
+
+    direction(angle) {
+        while(angle < 0)
+            angle += Math.PI * 2;
+        while(angle > Math.PI * 2)
+            angle -= Math.PI * 2;
+
+        if(Math.abs(this.value - angle) > Math.PI)
+            return Math.sign(this.value - angle);
+        else return -Math.sign(this.value - angle);
+    }
+
+    distance(angle) {
+
+        let d = Math.abs(this.value - angle);
+
+        if(d > Math.PI) 
+            d = Math.PI * 2 - d;
+        return d;
+
     }
 }
 

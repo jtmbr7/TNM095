@@ -8,6 +8,7 @@ class Eye {
         {r: 20, g: 150, b: 150},
         {r: 50, g: 250, b: 250},
         {r: 250, g: 250, b: 250},
+        {},
     ];
 
     constructor(host, vertex, dx, dy) {
@@ -28,6 +29,7 @@ class Eye {
 
     tick() {
 
+        this.colors[6] = {r: this.host.r, g: this.host.g, b: this.host.b}
         this.distance = this.d * this.host.size;
         this.size = this.host.size * .1 + (this.host.vision + 1) * .005;
         let vertex = Fish.vertices[this.vertex];
@@ -47,6 +49,10 @@ class Eye {
         circle(this.position, this.size * .6, this.colors[3].rgb);
         circle(this.position.circulation(this.size * .1, 0), this.size * .4, this.colors[4].rgb);
         circle(this.position.circulation(this.size * .5, 5 * Math.PI/4), this.size * .4, this.colors[5].rgb);
+        
+        if(this.host.tired)
+        circle(this.position.circulation(this.size * .5, Math.PI + this.host.angle.value), this.size * 1.1, this.colors[6].rgb);
+
     }
 }
 

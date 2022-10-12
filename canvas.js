@@ -5,7 +5,7 @@
 var key = {}
 onkeydown = onkeyup = function (e) { key[e.key] = e.type; }
 
-let mouse = {position: new Position(0, 0)};
+let mouse = {position: new Position(0, 0), previousPosition: new Position(0, 0)};
 onmousedown = onmouseup = function (e) {
 	if (e.button == 0) mouse.Left = e.type;
 	else if (e.button == 2) mouse.Right = e.type;
@@ -64,10 +64,12 @@ function animate(currentTime) {
 
 
 	update(dt / 1000);
+	text(canvas.width - 90, 30, 20, "rgb(0, 0, 0, 1)", "FPS: " + fps);
+	text(canvas.width - 190, 60, 20, "rgb(0, 0, 0, 1)", "Average FPS: " + fps_average);
+
 	// KeyEvents
 	resetKeys();
-	mouse.prevx = mouse.x;
-	mouse.prevy = mouse.y;
+	mouse.previousPosition = new Position(mouse.position.x, mouse.position.y);
 
 	if (running)
 		requestAnimationFrame(animate);

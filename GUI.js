@@ -21,14 +21,16 @@ class GUI {
         }
         
         this.playButton.tick();
+        
         if(this.clock.value == 0)
-            this.fishSpawner.tick();
+        this.fishSpawner.tick();
     
     }
 
     draw() {
         this.clock.draw();
         this.playButton.draw();
+
         if(this.clock.value == 0)
         this.fishSpawner.draw();
         this.calendar.draw();
@@ -51,8 +53,11 @@ class PlayButton {
                 this.colors[0] = "rgb(250, 250, 250, .3)"
             else this.colors[0] = "rgb(250, 250, 250, .8)"
 
-            if(mouse.Left == "mouseup")
-                this.value == true ? this.value = false : this.value = true
+            if(mouse.Left == "mouseup") {
+                if(Fish.objects.length == 0)
+                    alert("Add fishes before you start the simulation")
+                else this.value == true ? this.value = false : this.value = true
+            }
         }
         else this.colors[0] = "rgb(250, 250, 250, .5)"
 
@@ -123,15 +128,14 @@ class FishSpawner {
     sliders = [];
 
 
-    properties = [["size", 15, 40], ["maxSpeed", 1, 4], ["vision", 0, 200], ["smart", 0, 1], ["r", 50, 200], ["g", 50, 200], ["b", 50, 200]]
     constructor(position) {
         this.position = position;
-        this.newFish();
 
-        this.height = - 115 - 50 * this.properties.length
-        for(let i = 0; i < this.properties.length; ++i)
-            this.sliders.push(new Slider(new Position(this.position.x, this.position.y - this.size - 100 - 50 * i), this.properties[i]))
+        this.height = - 115 - 50 * Fish.properties.length
+        for(let i = 0; i < Fish.properties.length; ++i)
+            this.sliders.push(new Slider(new Position(this.position.x, this.position.y - this.size - 100 - 50 * i), Fish.properties[i]))
 
+            this.newFish();
     }
 
     tick() {
@@ -147,9 +151,9 @@ class FishSpawner {
 
 
         this.fish.velocity.value = 0;
-        this.fish.state = {value: undefined}
         this.fish.energy = 100;
-
+        this.fish.slowed = undefined;
+        
         if(mouse.locked != this) {
             this.fish.tick();
             this.fish.position.x = this.position.x
@@ -164,8 +168,14 @@ class FishSpawner {
                 ++this.holdcount;
 
             if(this.holdcount == 10) {
-                if(mouse.position.distance(mouse.previousPosition) > 0)
-                this.fish.setTargetAngle(mouse.previousPosition.angle(mouse.position))
+                if(mouse.position.distance(mouse.previousPosition) > 0) {
+
+                    let angle = mouse.previousPosition.angle(mouse.position);
+                    let c = Math.floor(this.fish.brain.n * angle/(Math.PI * 2));
+                    this.fish.brain.currentDecision = c;
+                    this.fish.brain.currentAngle = 2 * Math.PI * c/this.fish.brain.n;
+
+                }
                 this.fish.tick();
                 this.fish.position.x = mouse.position.x
                 this.fish.position.y = mouse.position.y
@@ -176,7 +186,7 @@ class FishSpawner {
             if(this.holdcount == 10) {
                 if(distance > this.size) {
                     this.fish.state = {value: "searching"}
-                    fishes.push(this.fish);
+                    Fish.objects.push(this.fish);
                     this.newFish();
                 }
                 else this.newFish();
@@ -189,7 +199,12 @@ class FishSpawner {
     }
 
     newFish() {
-        this.fish = new Fish(new Position(this.position.x, this.position.y), {size: 30, angle: new Angle(0)});
+        let props = {};
+        this.sliders.forEach(slider => {
+            props[slider.property[0]] = slider.property[1] + slider.value * (slider.property[2] - slider.property[1]);
+        });
+
+        this.fish = new Fish(new Position(this.position.x, this.position.y), props);
         this.fish.tick();
     }
 
